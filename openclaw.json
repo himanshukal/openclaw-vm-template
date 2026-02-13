@@ -25,7 +25,7 @@
       "nvidia": {
         "baseUrl": "https://integrate.api.nvidia.com/v1",
         "apiKey": "${NVIDIA_API_KEY}",
-        "api": "openai-completions"
+        "api": "openai-chat"
       }
     }
   }
