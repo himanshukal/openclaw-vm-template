@@ -11,17 +11,30 @@
       "allowInsecureAuth": true
     }
   },
+  "models": {
+    "mode": "merge",
+    "primary": "nvidia-nim/deepseek-v3.2",
+    "providers": {
+      "nvidia-nim": {
+        "baseUrl": "https://integrate.api.nvidia.com/v1",
+        "apiKey": "${NVIDIA_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "deepseek-ai/deepseek-v3.2",
+            "name": "DeepSeek V3.2",
+            "reasoning": true,
+            "input": ["text"],
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
   "agents": {
     "defaults": {
-      "workspace": "/root/.openclaw/workspace",
-      "model": {
-        "provider": "openai-compatible",
-        "baseUrl": "https://integrate.api.nvidia.com/v1",
-        "model": "deepseek-ai/deepseek-v3.2",
-        "apiKey": "${NVIDIA_API_KEY}",
-        "maxTokens": 8192,
-        "temperature": 0.7
-      }
+      "workspace": "/root/.openclaw/workspace"
     }
   }
 }
