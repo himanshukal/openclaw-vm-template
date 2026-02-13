@@ -1,6 +1,15 @@
 {
   "gateway": {
     "port": 18789,
-    "host": "0.0.0.0"
+    "bind": "0.0.0.0",
+    "auth": {
+      "mode": "token",
+      "token": "${OPENCLAW_GATEWAY_TOKEN}"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/root/.openclaw/workspace"
+    }
   }
 }

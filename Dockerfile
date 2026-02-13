@@ -50,8 +50,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 # Install pnpm and OpenClaw
 RUN npm install -g pnpm openclaw@latest
 
-# Create directories
-RUN mkdir -p /root/.openclaw /var/log/supervisor /root/.config/google-chrome/Default/Extensions
+# Create directories (including workspace for OpenClaw agent)
+RUN mkdir -p /root/.openclaw/workspace /var/log/supervisor /root/.config/google-chrome/Default/Extensions
+
+# Set default gateway token (can be overridden via env var at runtime)
+ENV OPENCLAW_GATEWAY_TOKEN=openclaw-default-token
 
 # Verify OpenClaw installation
 RUN openclaw --version || echo "OpenClaw installed"
