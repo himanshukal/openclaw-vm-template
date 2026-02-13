@@ -8,11 +8,7 @@
       "token": "${OPENCLAW_GATEWAY_TOKEN}"
     },
     "controlUi": {
-      "enabled": true,
-      "basePath": "/openclaw"
-    },
-    "security": {
-      "requireDeviceApproval": false
+      "allowInsecureAuth": true
     }
   },
   "agents": {
