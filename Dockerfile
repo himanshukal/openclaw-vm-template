@@ -53,8 +53,9 @@ RUN npm install -g pnpm openclaw@latest
 # Create directories (including workspace for OpenClaw agent)
 RUN mkdir -p /root/.openclaw/workspace /var/log/supervisor /root/.config/google-chrome/Default/Extensions
 
-# Set default gateway token (can be overridden via env var at runtime)
+# Environment variables (can be overridden at runtime)
 ENV OPENCLAW_GATEWAY_TOKEN=openclaw-default-token
+ENV NVIDIA_API_KEY=
 
 # Verify OpenClaw installation
 RUN openclaw --version || echo "OpenClaw installed"
