@@ -51,7 +51,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 RUN npm install -g pnpm openclaw@latest
 
 # Create directories (including workspace for OpenClaw agent)
-RUN mkdir -p /root/.openclaw/workspace /var/log/supervisor /root/.config/google-chrome/Default/Extensions
+# Note: Chrome user-data-dir is /tmp/chrome-data (created at runtime, not build time)
+RUN mkdir -p /root/.openclaw/workspace /var/log/supervisor
 
 # Environment variables (can be overridden at runtime)
 ENV OPENCLAW_GATEWAY_TOKEN=openclaw-default-token
@@ -80,9 +81,6 @@ RUN echo '{ \
     "nglingapjinhecnfejdcpihlpneeadjp" \
   ] \
 }' > /etc/opt/chrome/policies/managed/extensions.json
-
-# Install the OpenClaw Chrome extension at build time
-RUN openclaw browser extension install 2>&1 || echo "Extension install deferred to runtime"
 
 # Copy configuration and startup files
 COPY openclaw.json /root/.openclaw/openclaw.json

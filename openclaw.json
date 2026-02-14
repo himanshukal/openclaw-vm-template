@@ -8,7 +8,17 @@
       "token": "${OPENCLAW_GATEWAY_TOKEN}"
     },
     "controlUi": {
-      "allowInsecureAuth": true
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    }
+  },
+  "browser": {
+    "defaultProfile": "chrome",
+    "profiles": {
+      "chrome": {
+        "attachOnly": true,
+        "cdpUrl": "http://127.0.0.1:18800"
+      }
     }
   },
   "agents": {
