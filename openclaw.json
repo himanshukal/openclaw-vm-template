@@ -13,13 +13,11 @@
     }
   },
   "browser": {
-    "defaultProfile": "chrome",
-    "profiles": {
-      "chrome": {
-        "attachOnly": true,
-        "cdpUrl": "http://127.0.0.1:18800"
-      }
-    }
+    "enabled": true,
+    "defaultProfile": "openclaw",
+    "headless": false,
+    "noSandbox": true,
+    "executablePath": "/usr/bin/google-chrome-stable"
   },
   "agents": {
     "defaults": {

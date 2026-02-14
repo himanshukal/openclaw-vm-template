@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Google Chrome (NOT Chromium - required for Claude Extension)
+# Install Google Chrome (required for OpenClaw browser automation)
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
     && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
@@ -50,8 +50,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 # Install pnpm and OpenClaw
 RUN npm install -g pnpm openclaw@latest
 
-# Create directories (including workspace for OpenClaw agent)
-# Note: Chrome user-data-dir is /tmp/chrome-data (created at runtime, not build time)
+# Create directories
 RUN mkdir -p /root/.openclaw/workspace /var/log/supervisor
 
 # Environment variables (can be overridden at runtime)
@@ -61,33 +60,11 @@ ENV NVIDIA_API_KEY=
 # Verify OpenClaw installation
 RUN openclaw --version || echo "OpenClaw installed"
 
-# Pre-install Chrome extensions
-# Claude Chrome Extension ID: fcoeoabgfenejglbffodgkkbkcdhcgfn
-# OpenClaw Browser Relay ID: nglingapjinhecnfejdcpihlpneeadjp
-# Note: Extensions will be downloaded on first Chrome launch or can be force-installed via policy
-
-# Create Chrome policy directory for extension management
-RUN mkdir -p /etc/opt/chrome/policies/managed
-
-# Force-install extensions via Chrome policy
-# This tells Chrome to install these extensions automatically
-RUN echo '{ \
-  "ExtensionInstallForcelist": [ \
-    "fcoeoabgfenejglbffodgkkbkcdhcgfn;https://clients2.google.com/service/update2/crx", \
-    "nglingapjinhecnfejdcpihlpneeadjp;https://clients2.google.com/service/update2/crx" \
-  ], \
-  "ExtensionInstallAllowlist": [ \
-    "fcoeoabgfenejglbffodgkkbkcdhcgfn", \
-    "nglingapjinhecnfejdcpihlpneeadjp" \
-  ] \
-}' > /etc/opt/chrome/policies/managed/extensions.json
-
 # Copy configuration and startup files
 COPY openclaw.json /root/.openclaw/openclaw.json
 COPY start.sh /start.sh
-COPY setup-browser.sh /setup-browser.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN chmod +x /start.sh /setup-browser.sh
+RUN chmod +x /start.sh
 
 # Expose ports: 6080 (noVNC), 18789 (OpenClaw Gateway)
 EXPOSE 6080 18789
