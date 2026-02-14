@@ -84,8 +84,9 @@ RUN echo '{ \
 # Copy configuration and startup files
 COPY openclaw.json /root/.openclaw/openclaw.json
 COPY start.sh /start.sh
+COPY start-relay.sh /start-relay.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN chmod +x /start.sh
+RUN chmod +x /start.sh /start-relay.sh
 
 # Expose ports: 6080 (noVNC), 18789 (OpenClaw Gateway)
 EXPOSE 6080 18789

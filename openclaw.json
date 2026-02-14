@@ -11,15 +11,6 @@
       "allowInsecureAuth": true
     }
   },
-  "browser": {
-    "enabled": true,
-    "defaultProfile": "chrome",
-    "profiles": {
-      "chrome": {
-        "cdpUrl": "http://127.0.0.1:18800"
-      }
-    }
-  },
   "agents": {
     "defaults": {
       "workspace": "/root/.openclaw/workspace",
