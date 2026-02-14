@@ -81,12 +81,15 @@ RUN echo '{ \
   ] \
 }' > /etc/opt/chrome/policies/managed/extensions.json
 
+# Install the OpenClaw Chrome extension at build time
+RUN openclaw browser extension install 2>&1 || echo "Extension install deferred to runtime"
+
 # Copy configuration and startup files
 COPY openclaw.json /root/.openclaw/openclaw.json
 COPY start.sh /start.sh
-COPY start-relay.sh /start-relay.sh
+COPY setup-browser.sh /setup-browser.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN chmod +x /start.sh /start-relay.sh
+RUN chmod +x /start.sh /setup-browser.sh
 
 # Expose ports: 6080 (noVNC), 18789 (OpenClaw Gateway)
 EXPOSE 6080 18789
