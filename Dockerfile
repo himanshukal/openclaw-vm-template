@@ -35,6 +35,7 @@ RUN apt-get update && apt-get install -y \
     dbus-x11 \
     unzip \
     socat \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Google Chrome (required for OpenClaw browser automation)
@@ -64,10 +65,11 @@ RUN openclaw --version || echo "OpenClaw installed"
 # Copy configuration and startup files
 COPY openclaw.json /root/.openclaw/openclaw.json
 COPY start.sh /start.sh
+COPY entrypoint.sh /entrypoint.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN chmod +x /start.sh
+RUN chmod +x /start.sh /entrypoint.sh
 
 # Expose ports: 6080 (noVNC), 18789 (OpenClaw Gateway)
 EXPOSE 6080 18789
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/entrypoint.sh"]
