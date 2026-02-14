@@ -34,6 +34,7 @@ RUN apt-get update && apt-get install -y \
     menu \
     dbus-x11 \
     unzip \
+    socat \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Google Chrome (required for OpenClaw browser automation)
