@@ -103,14 +103,15 @@ const rawPubKey = pubDer.slice(pubDer.length - 32);
 const deviceId = crypto.createHash('sha256').update(rawPubKey).digest('hex');
 const pubKeyB64url = Buffer.from(rawPubKey).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 const deviceToken = crypto.createHmac('sha256', token).update('gleel2-device-token').digest('hex').substring(0, 48);
-const entry = [{
+const entry = {};
+entry[deviceId] = {
   deviceId, publicKey: pubKeyB64url, displayName: 'gleel2-relay',
   platform: 'linux', clientId: 'gateway-client', clientMode: 'backend', roles: ['operator'],
   tokens: { operator: { token: deviceToken, role: 'operator',
     scopes: ['operator.read','operator.write','operator.pairing','operator.admin'],
     createdAtMs: Date.now() }},
   createdAtMs: Date.now(), approvedAtMs: Date.now(), remoteIp: '127.0.0.1'
-}];
+};
 const path = (process.env.OPENCLAW_STATE_DIR || '/root/.openclaw') + '/devices/paired.json';
 fs.writeFileSync(path, JSON.stringify(entry, null, 2));
 console.log('[entrypoint] Pre-seeded device: ' + deviceId.substring(0, 16) + '...');
