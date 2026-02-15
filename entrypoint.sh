@@ -95,7 +95,7 @@ node -e "
 const crypto = require('crypto');
 const fs = require('fs');
 const token = process.env.OPENCLAW_GATEWAY_TOKEN || 'openclaw-default-token';
-const seed = crypto.hkdfSync('sha256', token, 'openclaw-device-seed', 'gleel2-relay-device', 32);
+const seed = Buffer.from(crypto.hkdfSync('sha256', token, 'openclaw-device-seed', 'gleel2-relay-device', 32));
 const keyObj = crypto.createPrivateKey({ key: Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'), seed]), format: 'der', type: 'pkcs8' });
 const pubKey = crypto.createPublicKey(keyObj);
 const pubDer = pubKey.export({ type: 'spki', format: 'der' });
@@ -112,7 +112,7 @@ const entry = [{
 const path = (process.env.OPENCLAW_STATE_DIR || '/root/.openclaw') + '/devices/paired.json';
 fs.writeFileSync(path, JSON.stringify(entry, null, 2));
 console.log('[entrypoint] Pre-seeded device: ' + deviceId.substring(0, 16) + '...');
-" 2>/dev/null && echo "[entrypoint] Device pairing pre-seeded" || echo "[entrypoint] WARNING: Failed to pre-seed device pairing"
+" 2>&1 && echo "[entrypoint] Device pairing pre-seeded" || echo "[entrypoint] WARNING: Failed to pre-seed device pairing"
 
 # Start supervisord (which manages all services)
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
