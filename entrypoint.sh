@@ -87,5 +87,32 @@ if ! grep -q 'allow-unconfigured' /etc/supervisor/conf.d/supervisord.conf; then
   echo "[entrypoint] Patched supervisord.conf with --allow-unconfigured"
 fi
 
+# Pre-seed device pairing so the relay server can connect with operator scopes.
+# Derives a deterministic ed25519 keypair from OPENCLAW_GATEWAY_TOKEN via HKDF,
+# then writes the device entry to paired.json before the gateway starts.
+mkdir -p "$CONFIG_DIR/devices"
+node -e "
+const crypto = require('crypto');
+const fs = require('fs');
+const token = process.env.OPENCLAW_GATEWAY_TOKEN || 'openclaw-default-token';
+const seed = crypto.hkdfSync('sha256', token, 'openclaw-device-seed', 'gleel2-relay-device', 32);
+const keyObj = crypto.createPrivateKey({ key: Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'), seed]), format: 'der', type: 'pkcs8' });
+const pubKey = crypto.createPublicKey(keyObj);
+const pubDer = pubKey.export({ type: 'spki', format: 'der' });
+const deviceId = crypto.createHash('sha256').update(pubDer).digest('hex');
+const deviceToken = crypto.createHmac('sha256', token).update('gleel2-device-token').digest('hex').substring(0, 48);
+const entry = [{
+  deviceId, publicKey: pubDer.toString('base64'), displayName: 'gleel2-relay',
+  platform: 'linux', clientId: 'cli', clientMode: 'cli', roles: ['operator'],
+  tokens: { operator: { token: deviceToken, role: 'operator',
+    scopes: ['operator.read','operator.write','operator.pairing','operator.admin'],
+    createdAtMs: Date.now() }},
+  createdAtMs: Date.now(), approvedAtMs: Date.now(), remoteIp: '127.0.0.1'
+}];
+const path = (process.env.OPENCLAW_STATE_DIR || '/root/.openclaw') + '/devices/paired.json';
+fs.writeFileSync(path, JSON.stringify(entry, null, 2));
+console.log('[entrypoint] Pre-seeded device: ' + deviceId.substring(0, 16) + '...');
+" 2>/dev/null && echo "[entrypoint] Device pairing pre-seeded" || echo "[entrypoint] WARNING: Failed to pre-seed device pairing"
+
 # Start supervisord (which manages all services)
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
