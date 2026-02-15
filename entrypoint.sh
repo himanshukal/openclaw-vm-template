@@ -99,11 +99,13 @@ const seed = Buffer.from(crypto.hkdfSync('sha256', token, 'openclaw-device-seed'
 const keyObj = crypto.createPrivateKey({ key: Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'), seed]), format: 'der', type: 'pkcs8' });
 const pubKey = crypto.createPublicKey(keyObj);
 const pubDer = pubKey.export({ type: 'spki', format: 'der' });
-const deviceId = crypto.createHash('sha256').update(pubDer).digest('hex');
+const rawPubKey = pubDer.slice(pubDer.length - 32);
+const deviceId = crypto.createHash('sha256').update(rawPubKey).digest('hex');
+const pubKeyB64url = Buffer.from(rawPubKey).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 const deviceToken = crypto.createHmac('sha256', token).update('gleel2-device-token').digest('hex').substring(0, 48);
 const entry = [{
-  deviceId, publicKey: pubDer.toString('base64'), displayName: 'gleel2-relay',
-  platform: 'linux', clientId: 'cli', clientMode: 'cli', roles: ['operator'],
+  deviceId, publicKey: pubKeyB64url, displayName: 'gleel2-relay',
+  platform: 'linux', clientId: 'gateway-client', clientMode: 'backend', roles: ['operator'],
   tokens: { operator: { token: deviceToken, role: 'operator',
     scopes: ['operator.read','operator.write','operator.pairing','operator.admin'],
     createdAtMs: Date.now() }},
