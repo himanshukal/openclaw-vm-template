@@ -81,5 +81,11 @@ else
   echo "[entrypoint] No CONFIG_URL set, using baked-in defaults"
 fi
 
+# Ensure --allow-unconfigured flag is present (handles cached Docker layers)
+if ! grep -q 'allow-unconfigured' /etc/supervisor/conf.d/supervisord.conf; then
+  sed -i 's|openclaw gateway --port 18790|openclaw gateway --port 18790 --allow-unconfigured|' /etc/supervisor/conf.d/supervisord.conf
+  echo "[entrypoint] Patched supervisord.conf with --allow-unconfigured"
+fi
+
 # Start supervisord (which manages all services)
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
