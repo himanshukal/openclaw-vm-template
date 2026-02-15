@@ -5,9 +5,7 @@
     "bind": "loopback",
     "auth": {
       "mode": "token",
-      "token": "${OPENCLAW_GATEWAY_TOKEN}",
-      "dangerouslyDisableDeviceAuth": true,
-      "allowInsecureAuth": true
+      "token": "${OPENCLAW_GATEWAY_TOKEN}"
     },
     "controlUi": {
       "allowInsecureAuth": true,
