@@ -66,8 +66,9 @@ RUN openclaw --version || echo "OpenClaw installed"
 COPY openclaw.json /root/.openclaw/openclaw.json
 COPY start.sh /start.sh
 COPY entrypoint.sh /entrypoint.sh
+COPY setup-browser.sh /setup-browser.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN chmod +x /start.sh /entrypoint.sh
+RUN chmod +x /start.sh /entrypoint.sh /setup-browser.sh
 
 # Expose ports: 6080 (noVNC), 18789 (OpenClaw Gateway)
 EXPOSE 6080 18789
