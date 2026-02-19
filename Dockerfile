@@ -77,10 +77,6 @@ RUN mkdir -p /etc/opt/chrome/policies/managed \
 COPY nginx-gateway.conf /etc/nginx/sites-enabled/gateway.conf
 RUN rm -f /etc/nginx/sites-enabled/default
 
-# Chrome wrapper script: injects memory-saving flags when OpenClaw launches Chrome
-COPY chrome-wrapper.sh /usr/local/bin/chrome-wrapper
-RUN chmod +x /usr/local/bin/chrome-wrapper
-
 # Copy configuration and startup files
 COPY openclaw.json /root/.openclaw/openclaw.json
 COPY start.sh /start.sh
