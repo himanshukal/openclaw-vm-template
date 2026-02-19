@@ -24,7 +24,7 @@
     "defaults": {
       "workspace": "/root/.openclaw/workspace",
       "model": {
-        "primary": "nvidia/deepseek-ai/deepseek-v3.2"
+        "primary": "nvidia/z-ai/glm5"
       }
     }
   },
@@ -35,7 +35,7 @@
         "baseUrl": "https://integrate.api.nvidia.com/v1",
         "apiKey": "${NVIDIA_API_KEY}",
         "api": "openai-completions",
-        "models": [{ "id": "deepseek-ai/deepseek-v3.2", "name": "DeepSeek V3.2" }]
+        "models": [{ "id": "z-ai/glm5", "name": "GLM-5" }]
       }
     }
   }
