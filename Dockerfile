@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y \
     menu \
     dbus-x11 \
     unzip \
-    socat \
+    nginx \
     jq \
     && rm -rf /var/lib/apt/lists/*
 
@@ -61,6 +61,10 @@ ENV NVIDIA_API_KEY=
 
 # Verify OpenClaw installation
 RUN openclaw --version || echo "OpenClaw installed"
+
+# nginx reverse proxy: strips X-Frame-Options for iframe embedding
+COPY nginx-gateway.conf /etc/nginx/sites-enabled/gateway.conf
+RUN rm -f /etc/nginx/sites-enabled/default
 
 # Copy configuration and startup files
 COPY openclaw.json /root/.openclaw/openclaw.json
