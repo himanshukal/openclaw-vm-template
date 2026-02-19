@@ -58,6 +58,9 @@ RUN mkdir -p /root/.openclaw/workspace /var/log/supervisor
 # Environment variables (can be overridden at runtime)
 ENV OPENCLAW_GATEWAY_TOKEN=openclaw-default-token
 ENV NVIDIA_API_KEY=
+ENV OPENROUTER_API_KEY=
+ENV ANTHROPIC_API_KEY=
+ENV OPENAI_API_KEY=
 
 # Verify OpenClaw installation
 RUN openclaw --version || echo "OpenClaw installed"
