@@ -18,7 +18,7 @@
     "defaultProfile": "openclaw",
     "headless": false,
     "noSandbox": true,
-    "executablePath": "/usr/local/bin/chrome-wrapper"
+    "executablePath": "/usr/bin/google-chrome-stable"
   },
   "agents": {
     "defaults": {
