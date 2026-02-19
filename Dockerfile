@@ -62,6 +62,17 @@ ENV NVIDIA_API_KEY=
 # Verify OpenClaw installation
 RUN openclaw --version || echo "OpenClaw installed"
 
+# Force-install OpenClaw Browser Relay extension via Chrome policy
+RUN mkdir -p /etc/opt/chrome/policies/managed \
+    && echo '{ \
+  "ExtensionInstallForcelist": [ \
+    "nglingapjinhecnfejdcpihlpneeadjp;https://clients2.google.com/service/update2/crx" \
+  ], \
+  "ExtensionInstallAllowlist": [ \
+    "nglingapjinhecnfejdcpihlpneeadjp" \
+  ] \
+}' > /etc/opt/chrome/policies/managed/extensions.json
+
 # nginx reverse proxy: strips X-Frame-Options for iframe embedding
 COPY nginx-gateway.conf /etc/nginx/sites-enabled/gateway.conf
 RUN rm -f /etc/nginx/sites-enabled/default
