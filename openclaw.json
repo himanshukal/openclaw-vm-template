@@ -34,16 +34,8 @@
       "nvidia": {
         "baseUrl": "https://integrate.api.nvidia.com/v1",
         "apiKey": "${NVIDIA_API_KEY}",
-        "api": "openai-chat",
-        "models": [{
-          "id": "deepseek-ai/deepseek-v3.2",
-          "name": "DeepSeek V3.2",
-          "contextWindow": 65536,
-          "maxTokens": 8192,
-          "compat": {
-            "openaiCompletionsTools": true
-          }
-        }]
+        "api": "openai-completions",
+        "models": [{ "id": "deepseek-ai/deepseek-v3.2", "name": "DeepSeek V3.2" }]
       }
     }
   }
