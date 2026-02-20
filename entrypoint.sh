@@ -8,7 +8,7 @@ CONFIG_DIR="/root/.openclaw"
 if [ -n "$CONFIG_URL" ]; then
   echo "[entrypoint] Fetching config from $CONFIG_URL"
 
-  CONFIG_JSON=$(curl -sf --retry 3 --retry-delay 5 "$CONFIG_URL" 2>/dev/null || echo "")
+  CONFIG_JSON=$(curl -sf --retry 5 --retry-delay 10 --retry-max-time 120 "$CONFIG_URL" 2>/dev/null || echo "")
 
   if [ -n "$CONFIG_JSON" ] && echo "$CONFIG_JSON" | jq . > /dev/null 2>&1; then
     echo "[entrypoint] Config fetched successfully"

@@ -22,21 +22,7 @@
   },
   "agents": {
     "defaults": {
-      "workspace": "/root/.openclaw/workspace",
-      "model": {
-        "primary": "nvidia/z-ai/glm5"
-      }
-    }
-  },
-  "models": {
-    "mode": "merge",
-    "providers": {
-      "nvidia": {
-        "baseUrl": "https://integrate.api.nvidia.com/v1",
-        "apiKey": "${NVIDIA_API_KEY}",
-        "api": "openai-completions",
-        "models": [{ "id": "z-ai/glm5", "name": "GLM-5" }]
-      }
+      "workspace": "/root/.openclaw/workspace"
     }
   }
 }
