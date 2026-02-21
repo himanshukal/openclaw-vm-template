@@ -102,10 +102,15 @@ if ! grep -q 'allow-unconfigured' /etc/supervisor/conf.d/supervisord.conf; then
   echo "[entrypoint] Patched supervisord.conf with --allow-unconfigured"
 fi
 
-# Pre-seed device pairing so the relay server can connect with operator scopes.
-# Derives a deterministic ed25519 keypair from OPENCLAW_GATEWAY_TOKEN via HKDF,
-# then writes the device entry to paired.json before the gateway starts.
+# Clean stale device metadata on fresh boot (avoids pairing loops from #21236).
+# Then pre-seed a device so the relay and browser services can connect with full
+# operator scopes. The keypair is derived deterministically from OPENCLAW_GATEWAY_TOKEN.
 mkdir -p "$CONFIG_DIR/devices"
+
+# Wipe stale pending devices — fresh container, no carryover
+echo '{}' > "$CONFIG_DIR/devices/pending.json"
+echo "[entrypoint] Cleared pending.json for fresh boot"
+
 node -e "
 const crypto = require('crypto');
 const fs = require('fs');
