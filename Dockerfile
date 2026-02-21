@@ -49,8 +49,10 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearm
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs
 
-# Install pnpm and OpenClaw (pin to 2026.2.14 to avoid pairing regression in 2026.2.19+)
-RUN npm install -g pnpm openclaw@2026.2.14
+# Install pnpm and OpenClaw
+# Pin to 2026.2.17: has scope fix (PRs #16981, #17127) for Canvas UI over non-loopback,
+# but predates the pairing regression introduced in 2026.2.19+.
+RUN npm install -g pnpm openclaw@2026.2.17
 
 # Install Playwright for browser automation (required for navigate, click, type, screenshots)
 RUN npm install -g playwright \
