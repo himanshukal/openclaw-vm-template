@@ -52,6 +52,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 # Install pnpm and OpenClaw
 RUN npm install -g pnpm openclaw@latest
 
+# Install Playwright for browser automation (required for navigate, click, type, screenshots)
+RUN npm install -g playwright \
+    && npx playwright install chromium \
+    && npx playwright install-deps chromium
+
 # Create directories
 RUN mkdir -p /root/.openclaw/workspace /var/log/supervisor
 
@@ -64,17 +69,6 @@ ENV OPENAI_API_KEY=
 
 # Verify OpenClaw installation
 RUN openclaw --version || echo "OpenClaw installed"
-
-# Force-install OpenClaw Browser Relay extension via Chrome policy
-RUN mkdir -p /etc/opt/chrome/policies/managed \
-    && echo '{ \
-  "ExtensionInstallForcelist": [ \
-    "nglingapjinhecnfejdcpihlpneeadjp;https://clients2.google.com/service/update2/crx" \
-  ], \
-  "ExtensionInstallAllowlist": [ \
-    "nglingapjinhecnfejdcpihlpneeadjp" \
-  ] \
-}' > /etc/opt/chrome/policies/managed/extensions.json
 
 # nginx reverse proxy: strips X-Frame-Options for iframe embedding
 COPY nginx-gateway.conf /etc/nginx/sites-enabled/gateway.conf
