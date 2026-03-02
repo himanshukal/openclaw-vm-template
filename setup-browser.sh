@@ -172,9 +172,12 @@ netstat -tlnp 2>/dev/null | grep -E '187|18800' || ss -tlnp 2>/dev/null | grep -
 
 echo "[setup-browser] Setup complete."
 
-# Keep script alive and monitor Chrome
+# Keep script alive, monitor Chrome, and continuously approve pending devices.
+# Agents create new device pairing requests when tool connections are made,
+# so we need to keep approving them in the background.
 while kill -0 $CHROME_PID 2>/dev/null; do
-    sleep 30
+    approve_pending_devices 2>/dev/null
+    sleep 15
 done
 
 echo "[setup-browser] Chrome process exited, restarting..."
