@@ -105,7 +105,10 @@ google-chrome-stable \
     --no-sandbox \
     --disable-gpu \
     --disable-dev-shm-usage \
+    --no-first-run \
+    --no-default-browser-check \
     --remote-debugging-port=18800 \
+    --remote-debugging-address=0.0.0.0 \
     --user-data-dir="$CHROME_DATA_DIR" \
     --window-size=1280,720 \
     --display=:99 \
