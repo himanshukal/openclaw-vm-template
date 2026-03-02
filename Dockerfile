@@ -50,9 +50,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs
 
 # Install pnpm and OpenClaw
-# 2026.3.1: latest stable — supports Remote CDP (browser.profiles + attachOnly).
-# Pairing regression from 2026.2.19+ is bypassed by dangerouslyDisableDeviceAuth: true in config.
-RUN npm install -g pnpm openclaw@2026.3.1
+# Pin to 2026.2.17: has scope fix (PRs #16981, #17127) for Canvas UI over non-loopback,
+# but predates the pairing regression introduced in 2026.2.19+.
+RUN npm install -g pnpm openclaw@2026.2.17
 
 # Install Playwright for browser automation (required for navigate, click, type, screenshots)
 RUN npm install -g playwright \
