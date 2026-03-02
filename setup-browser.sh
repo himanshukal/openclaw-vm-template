@@ -1,11 +1,14 @@
 #!/bin/bash
-# Setup script: waits for gateway to stabilize, then starts managed browser profile.
-# The managed profile (openclaw.json browser.defaultProfile="openclaw") handles
-# Chrome launch, CDP connection, and extension relay automatically.
+# Setup script: waits for gateway to stabilize, then launches Chrome directly.
 #
-# After browser start, any pending devices are auto-approved so the browser tool
-# can connect back to the gateway without manual intervention (fixes 1008 pairing
-# errors in Docker / headless environments).
+# OpenClaw's managed browser profile (openclaw browser start) uses a browser
+# control service on port 18791 that has a known Docker bug — it reports ready
+# but never actually binds the port. This script bypasses that entirely by
+# launching Chrome directly with --remote-debugging-port=18800 and configuring
+# OpenClaw with attachOnly: true so it connects via CDP without the control service.
+#
+# After Chrome starts, pending devices are auto-approved so the browser tool
+# can connect back to the gateway without manual intervention.
 
 echo "[setup-browser] Waiting for gateway to start..."
 
@@ -16,7 +19,7 @@ for i in $(seq 1 60); do
         break
     fi
     if [ "$i" -eq 60 ]; then
-        echo "[setup-browser] WARNING: Gateway not ready after 60 attempts, trying browser start anyway"
+        echo "[setup-browser] WARNING: Gateway not ready after 60 attempts, starting Chrome anyway"
     fi
     echo "[setup-browser] Gateway not ready, attempt $i/60..."
     sleep 5
@@ -42,7 +45,6 @@ approve_pending_devices() {
     done
 
     # Method 2: Direct file manipulation as fallback
-    # Move any pending devices directly to paired.json
     PENDING_FILE="/root/.openclaw/devices/pending.json"
     PAIRED_FILE="/root/.openclaw/devices/paired.json"
 
@@ -61,11 +63,9 @@ try {
     let approved = 0;
     for (const [id, device] of Object.entries(pending)) {
         if (!paired[id]) {
-            // Copy pending device to paired, add approval timestamp and full scopes
             const d = { ...device };
             d.approvedAtMs = Date.now();
             d.roles = d.roles || ['operator'];
-            // Ensure tokens have full operator scopes
             if (d.tokens && d.tokens.operator) {
                 d.tokens.operator.scopes = [
                     'operator.read', 'operator.write',
@@ -95,48 +95,53 @@ try {
 }
 
 # ---------------------------------------------------------------------------
-# Start the managed browser profile with retries + auto-approval
+# Launch Chrome directly with CDP on port 18800
+# Bypasses the broken browser control service (port 18791 Docker bug)
 # ---------------------------------------------------------------------------
-echo "[setup-browser] Starting managed browser profile..."
-BROWSER_STARTED=false
+echo "[setup-browser] Launching Chrome directly with CDP on port 18800..."
 
-for attempt in $(seq 1 10); do
-    if openclaw browser start --profile openclaw --token "$OPENCLAW_GATEWAY_TOKEN" 2>&1; then
-        echo "[setup-browser] Browser started successfully on attempt $attempt"
-        BROWSER_STARTED=true
+CHROME_DATA_DIR="/root/.openclaw/browser/openclaw/user-data"
+mkdir -p "$CHROME_DATA_DIR"
+
+google-chrome-stable \
+    --no-sandbox \
+    --disable-gpu \
+    --disable-dev-shm-usage \
+    --remote-debugging-port=18800 \
+    --user-data-dir="$CHROME_DATA_DIR" \
+    --window-size=1280,720 \
+    --display=:99 \
+    about:blank &
+
+CHROME_PID=$!
+echo "[setup-browser] Chrome launched with PID $CHROME_PID"
+
+# Wait for Chrome CDP to be reachable
+for i in $(seq 1 30); do
+    if curl -sf http://127.0.0.1:18800/json/version > /dev/null 2>&1; then
+        echo "[setup-browser] Chrome CDP is responding on port 18800"
         break
     fi
-
-    echo "[setup-browser] Browser start attempt $attempt failed"
-
-    # After first failure, try approving pending devices (browser start may have
-    # created a pending device entry that needs approval)
-    sleep 3
-    approve_pending_devices
-    sleep 5
-
-    if [ "$attempt" -eq 10 ]; then
-        echo "[setup-browser] ERROR: Browser start failed after 10 attempts"
-    else
-        echo "[setup-browser] Retrying in 5s..."
-        sleep 5
+    if [ "$i" -eq 30 ]; then
+        echo "[setup-browser] WARNING: Chrome CDP not responding after 30 attempts"
     fi
+    sleep 2
 done
 
-# Even if browser start "succeeded", approve any pending devices that the
-# browser tool might need when the agent later calls navigate/click/etc.
+# Approve pending devices
 sleep 3
 approve_pending_devices
-
-# Check browser status
-echo "[setup-browser] Browser status:"
-openclaw browser status --token "$OPENCLAW_GATEWAY_TOKEN" 2>&1 || echo "[setup-browser] Status check failed"
 
 # Show port status
 echo "[setup-browser] Port status:"
 netstat -tlnp 2>/dev/null | grep -E '187|18800' || ss -tlnp 2>/dev/null | grep -E '187|18800' || echo "[setup-browser] Could not check ports"
 
-echo "[setup-browser] Setup complete."
+echo "[setup-browser] Setup complete. Chrome running on CDP port 18800."
 
-# Keep script alive for supervisord
-exec sleep infinity
+# Keep script alive for supervisord (and monitor Chrome)
+while kill -0 $CHROME_PID 2>/dev/null; do
+    sleep 30
+done
+
+echo "[setup-browser] Chrome process exited, restarting..."
+exec "$0"
